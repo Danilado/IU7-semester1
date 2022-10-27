@@ -1,9 +1,23 @@
-arr = [(1, 1)] + [None]*9
+# n студентов
+# t[i] = время обслуживания i-го студента
+# Даны t[i] in R
+# требуется получить c[i]
+# время пребывания студента в очереди
 
-print(arr)
+n = 100
+t = [i % 20 for i in range(100)]
+c = []
+mintime = t[0]
+mintime_n = 0
 
-for i in range(1, 10):
-    arr[i] = (arr[i-1][1]*2 + arr[i-1][0],
-              arr[i-1][0]**2*2 + arr[i-1][1])
+cur_time = 0
 
-print(*arr, sep='\n')
+for i in range(n):
+    c.append(cur_time)
+    cur_time += t[i]
+    if t[i] < mintime:
+        mintime = t[i]
+        mintime_n = i
+
+print(*c)
+print(mintime_n)
