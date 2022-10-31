@@ -8,6 +8,9 @@
 """
 
 # Ввод
+from math import fsum
+
+
 m, n = map(int, input(
     'Введите размеры m и n матрицы через пробел (int, int): ').split()
 )
@@ -19,58 +22,30 @@ for i in range(m):
             f'Введите {j+1}-й элемент {i+1}-й строки (int): '
         ))
 
-# ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣶⣄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-# ⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣄⣀⡀⣠⣾⡇⠀⠀⠀⠀
-# ⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀
-# ⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⢿⣿⣿⡇⠀⠀⠀⠀
-# ⠀⣶⣿⣦⣜⣿⣿⣿⡟⠻⣿⣿⣿⣿⣿⣿⣿⡿⢿⡏⣴⣺⣦⣙⣿⣷⣄⠀⠀⠀
-# ⠀⣯⡇⣻⣿⣿⣿⣿⣷⣾⣿⣬⣥⣭⣽⣿⣿⣧⣼⡇⣯⣇⣹⣿⣿⣿⣿⣧⠀⠀
-# ⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠸⣿⣿⣿⣿⣿⣿⣿⣷⠀
-# Считерим и транспонируем матрицу, потому что можем
-
-trans_matrix = [[0]*m for _ in range(n)]
-
+# Бахаем индексы вот этих ваших столбцов, да
+fsum = 0
 for i in range(m):
-    for j in range(n):
-        trans_matrix[j][i] = matrix[i][j]
+    fsum += matrix[i][0]
 
-maxelsum = minelsum = sum(trans_matrix[0])
+maxelsum = minelsum = fsum
 maxindex = minindex = 0
 
-# Определим минимальную и максимальную подходящую СТРОКИ
 for i in range(1, n):
-    tmp_sum = sum(trans_matrix[i])
-    if tmp_sum > maxelsum:
-        maxelsum = tmp_sum
-        maxindex = i
-    elif tmp_sum < minelsum:
-        minelsum = tmp_sum
-        minelsum = 0
-
-# Свапаем строки
-trans_matrix[minindex], trans_matrix[maxindex] = \
-    trans_matrix[maxindex], trans_matrix[minindex]
-
-# Транспонируем обратно
-# ⣀⣠⣤⣤⣤⣤⢤⣤⣄⣀⣀⣀⣀⡀⡀⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄
-# ⠄⠉⠹⣾⣿⣛⣿⣿⣞⣿⣛⣺⣻⢾⣾⣿⣿⣿⣶⣶⣶⣄⡀⠄⠄⠄
-# ⠄⠄⠠⣿⣷⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣯⣿⣿⣿⣿⣿⣿⣆⠄⠄
-# ⠄⠄⠘⠛⠛⠛⠛⠋⠿⣷⣿⣿⡿⣿⢿⠟⠟⠟⠻⠻⣿⣿⣿⣿⡀⠄
-# ⠄⢀⠄⠄⠄⠄⠄⠄⠄⠄⢛⣿⣁⠄⠄⠒⠂⠄⠄⣀⣰⣿⣿⣿⣿⡀
-# ⠄⠉⠛⠺⢶⣷⡶⠃⠄⠄⠨⣿⣿⡇⠄⡺⣾⣾⣾⣿⣿⣿⣿⣽⣿⣿
-# ⠄⠄⠄⠄⠄⠛⠁⠄⠄⠄⢀⣿⣿⣧⡀⠄⠹⣿⣿⣿⣿⣿⡿⣿⣻⣿
-# ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠉⠛⠟⠇⢀⢰⣿⣿⣿⣏⠉⢿⣽⢿⡏
-# ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠠⠤⣤⣴⣾⣿⣿⣾⣿⣿⣦⠄⢹⡿⠄
-# ⠄⠄⠄⠄⠄⠄⠄⠄⠒⣳⣶⣤⣤⣄⣀⣀⡈⣀⢁⢁⢁⣈⣄⢐⠃⠄
-# ⠄⠄⠄⠄⠄⠄⠄⠄⠄⣰⣿⣛⣻⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡯⠄⠄
-# ⠄⠄⠄⠄⠄⠄⠄⠄⠄⣬⣽⣿⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⠄⠄
-# ⠄⠄⠄⠄⠄⠄⠄⠄⠄⢘⣿⣿⣻⣛⣿⡿⣟⣻⣿⣿⣿⣿⡟⠄⠄⠄
-# ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠛⢛⢿⣿⣿⣿⣿⣿⣿⣷⡿⠁⠄⠄⠄
-# ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠉⠉⠉⠉⠈⠄⠄⠄⠄⠄⠄
-
-for i in range(n):
+    tsum = 0
     for j in range(m):
-        matrix[j][i] = trans_matrix[i][j]
+        tsum += matrix[j][i]
+
+    if tsum > maxelsum:
+        maxelsum = tsum
+        maxindex = i
+    elif tsum < minelsum:
+        minelsum = tsum
+        minindex = i
+
+# Свапаем эти столбцы, чтоб им пусто было
+for i in range(m):
+    matrix[i][minindex], matrix[i][maxindex] = \
+        matrix[i][maxindex], matrix[i][minindex]
 
 # Вывод
 print("\nИзменённая матрица:")
