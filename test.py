@@ -1,23 +1,27 @@
-# n студентов
-# t[i] = время обслуживания i-го студента
-# Даны t[i] in R
-# требуется получить c[i]
-# время пребывания студента в очереди
+"""
+вставить в упорядоченный по 
+возрастанию массив A число R
+расширенный массив напечатать
+"""
 
-n = 100
-t = [i % 20 for i in range(100)]
-c = []
-mintime = t[0]
-mintime_n = 0
+from turtle import pos
 
-cur_time = 0
 
-for i in range(n):
-    c.append(cur_time)
-    cur_time += t[i]
-    if t[i] < mintime:
-        mintime = t[i]
-        mintime_n = i
+a = [i for i in range(100) if i != 42]
+r = 42
 
-print(*c)
-print(mintime_n)
+n = len(a)
+
+pos = len(a)//2
+
+while not (a[pos] < r < a[pos+1]):
+    print(pos)
+    if r > a[pos]:
+        pos *= 1.5
+        pos = int(pos)
+    elif r < a[pos]:
+        pos //= 1.5
+
+a.insert(pos, r)
+
+print(a)

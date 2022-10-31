@@ -7,7 +7,7 @@
 
 the_string = input("Введите исходную строку (str): ")
 
-filter_letters = ['a', 'e', 'i', 'o', 'u', 'y']
+filter_letters = 'aeiouy'
 replacements = []
 
 for i, char in enumerate(the_string):
