@@ -49,5 +49,5 @@ print("\nИзменённая матрица:")
 
 for line in matrix:
     for element in line:
-        print(f'{element}', end='\t')
+        print(f'{element:.7g}', end='\t')
     print()
