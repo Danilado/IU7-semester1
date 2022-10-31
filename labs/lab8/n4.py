@@ -8,8 +8,6 @@
 """
 
 # Ввод
-from math import fsum
-
 
 m, n = map(int, input(
     'Введите размеры m и n матрицы через пробел (int, int): ').split()
