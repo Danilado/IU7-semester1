@@ -20,6 +20,12 @@ for i in range(m):
             f'Введите {j+1}-й элемент {i+1}-й строки (int): '
         ))
 
+print("\nИсходная матрица:")
+for line in matrix:
+    for element in line:
+        print(f'{element:.7g}', end='\t')
+    print()
+
 # Бахаем индексы вот этих ваших столбцов, да
 fsum = 0
 for i in range(m):

@@ -21,6 +21,11 @@ for i in range(m):
         ))
 
 # print(*matrix, sep='\n')
+print("\nИсходная матрица:")
+for line in matrix:
+    for element in line:
+        print(f'{element:.7g}', end='\t')
+    print()
 
 max_count = 0
 max_index = 0
@@ -28,10 +33,9 @@ counter = 0
 
 for i in range(m):
     # Подсчёт одинаковых подряд идущих жлементов в строке матрицы
-    for j in range(n):
-        if j == 0:
-            counter = 1
-        elif matrix[i][j] == matrix[i][j-1]:
+    counter = 1
+    for j in range(1, n):
+        if matrix[i][j] == matrix[i][j-1]:
             counter += 1
         else:
             if counter > max_count:
@@ -42,10 +46,10 @@ for i in range(m):
     if counter > max_count:
         max_count = counter
         max_index = i
-    counter = 0
+    #counter = 0
 
 # Вывод
 print(
-    'Максимальное количество подряд идущих одинаковых элементов найдено в' +
+    '\nМаксимальное количество подряд идущих одинаковых элементов найдено в' +
     f' {max_index+1}-й строке.'
 )

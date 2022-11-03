@@ -41,6 +41,12 @@ for i in range(m):
 
 # print(mindex, maxdex)
 
+print("\nИсходная матрица:")
+for line in matrix:
+    for element in line:
+        print(f'{element:.7g}', end='\t')
+    print()
+
 # Замена строк
 matrix[mindex], matrix[maxdex] = matrix[maxdex], matrix[mindex]
 

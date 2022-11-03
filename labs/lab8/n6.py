@@ -18,6 +18,12 @@ for i in range(n):
             f'Введите {j+1}-й элемент {i+1}-й строки (int): '
         ))
 
+print("\nИсходная матрица:")
+for line in matrix:
+    for element in line:
+        print(f'{element:.7g}', end='\t')
+    print()
+
 # Транспонируем
 for i in range(n):
     for j in range(i+1, n):

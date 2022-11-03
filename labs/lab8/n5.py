@@ -18,9 +18,15 @@ for i in range(n):
             f'Введите {j+1}-й элемент {i+1}-й строки (int): '
         ))
 
+print("\nИсходная матрица:")
+for line in matrix:
+    for element in line:
+        print(f'{element:.7g}', end='\t')
+    print()
+
 # Ищем ответ .-.
 maxover = matrix[0][1]
-minbelow = matrix[1][0]
+minbelow = matrix[n-1][n-1]
 
 for i in range(n):
     for j in range(i+1, n):
@@ -28,7 +34,8 @@ for i in range(n):
 
 for i in range(n):
     for j in range(i):
-        minbelow = min(minbelow, matrix[i][j])
+        minbelow = min(minbelow, matrix[i][n-1-j])
 
+# Вывод
 print(f"\nМаксимальный элемент над главной диагональю: {maxover:.7g}")
-print(f"Минимальный элемент под главной диагональю: {minbelow:.7g}")
+print(f"Минимальный элемент под побочной диагональю: {minbelow:.7g}")
