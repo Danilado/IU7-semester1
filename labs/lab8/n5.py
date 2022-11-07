@@ -8,8 +8,11 @@
 """
 
 # Ввод
-n = int(input(
-    'Введите размер n матрицы (int): '))
+n = 0
+while n < 1:
+    n = int(input(
+        'Введите размер n матрицы (int > 1): '))
+
 matrix = [[0]*n for _ in range(n)]
 
 for i in range(n):

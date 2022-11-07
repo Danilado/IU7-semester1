@@ -8,10 +8,13 @@
 идущих одинаковых элементов.
 """
 
+m = n = 0
 # Ввод
-m, n = map(int, input(
-    'Введите размеры m и n матрицы через пробел (int, int): ').split()
-)
+while n < 1 or m < 1:
+    m, n = map(int, input(
+        'Введите размеры m и n матрицы через пробел (int > 1, int > 1): ').split()
+    )
+
 matrix = [[0]*n for _ in range(m)]
 
 for i in range(m):
