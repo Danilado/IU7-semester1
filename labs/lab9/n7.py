@@ -23,7 +23,10 @@ for i in range(m):
                 f"Введите значение на координатах {i}, {j}, {k} (int): "
             ))
 
-the_index = int(input("Введите ИНДЕКС для вывода среза: "))
+the_index = -1
+while the_index < 0 or the_index > n:
+    the_index = int(
+        input("Введите индекс для вывода среза (0 < int <= max_y_index): ")) - 1
 
 cut = []
 
