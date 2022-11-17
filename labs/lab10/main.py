@@ -36,7 +36,7 @@ def antiderivative(x: float) -> float:
     :return: Значние первообразной при данном значении аргумента
     :rtype: float
     """
-    return x**3/3
+    return x**4/4
 
 
 def f(x: float) -> float:
@@ -47,7 +47,7 @@ def f(x: float) -> float:
     :return: Значние функции при данном значении аргумента
     :rtype: float
     """
-    return x**2
+    return x**3
 
 
 def average_rectangles(start: float, finish: float,
@@ -78,9 +78,11 @@ def average_rectangles(start: float, finish: float,
 
     result = 0  # результат
     h = (finish - start)/segment_count  # длина отрезка
+    x = start + h/2
 
     for i in range(segment_count):
-        result += f(start + h/2 + i*h)
+        result += f(x)
+        x += h
 
     result *= h
     return result
@@ -109,6 +111,7 @@ def parabolas(start: float, finish: float,
     :rtype: float
     """
     segment_count = int(segment_count)
+    segment_count //= 2
 
     h = (finish - start) / segment_count
 
@@ -117,7 +120,7 @@ def parabolas(start: float, finish: float,
     x_0 = start
     x_1 = start + h
 
-    for _ in range(segment_count - 1):
+    for _ in range(1, segment_count + 1):
         tmp_sum += f(x_0) + 4*f(x_0 + h/2) + f(x_1)
 
         x_0 += h
@@ -146,15 +149,25 @@ def calculate_accurate_n(alg: Callable, start_n: int, finish_n: int,
     :return: посчитанное значение n
     :rtype: int
     """
+    # Если сравнивать нужно с идеальным
+    # integral = antiderivative(ffinish) - antiderivative(fstart)
 
     while finish_n - start_n > 1:
         mid = round((start_n + finish_n)/2)
 
+        # !!! Если нужно сравнивать с идеальным интегралом
+        # diff_mid = abs(
+        #     alg(fstart, ffinish, mid, f) -
+        #     integral
+        # )
+
+        # !!! Если нужно сравнивать с 2n
         diff_mid = abs(
             alg(fstart, ffinish, mid, f) -
             alg(fstart, ffinish, 2*mid, f)
         )
 
+        print(' '*128, end='\r')
         print(f"Разница для n = {mid} : {diff_mid:.7g}", end='\r')
 
         if diff_mid < eps:
@@ -199,13 +212,13 @@ def main():
     # Выводим таблицу
     # 13.7 - оптимальное значение для случаев с минусом и т.д.
     print()
-    print(f"---------------------------------------------------------------")
-    print(f"| Метод интегрирования          | N1: {N1:<8g} | N2: {N2:<8g} |")
-    print(f"---------------------------------------------------------------")
-    print(f"| Метод средних прямоугольников | {l1:<12.7g} | {l3:<12.7g} |")
-    print(f"---------------------------------------------------------------")
-    print(f"| Метод парабол                 | {l2:<12.7g} | {l4:<12.7g} |")
-    print(f"---------------------------------------------------------------")
+    print(f"-------------------------------------------------------------------")
+    print(f"| Метод интегрирования          | N1: {N1:<9g}  | N2: {N2:<9g}  |")
+    print(f"-------------------------------------------------------------------")
+    print(f"| Метод средних прямоугольников | {l1:<14.7g} | {l3:<14.7g} |")
+    print(f"-------------------------------------------------------------------")
+    print(f"| Метод парабол                 | {l2:<14.7g} | {l4:<14.7g} |")
+    print(f"-------------------------------------------------------------------")
     print()
 
     integral = antiderivative(finish_x) - antiderivative(start_x)
@@ -214,15 +227,29 @@ def main():
     alg2_error = min(abs(l2 - integral), abs(l4 - integral))
 
     print(f"Посчитанный через первообразную интеграл: {integral:.7g}")
+    print(f"\nПогрешность первого метода: {alg1_error:.7g}")
+    if integral:
+        print(f"(относительная: {alg1_error/integral:.7g})")
+    print(
+        f"\nПогрешность второго метода: {alg2_error:.7g}"
+    )
+    if integral:
+        print(f"(относительная: {alg2_error/integral:.7g})")
 
     if alg2_error < alg1_error:
-        print("Метод парабол в данном случае более точен\n")
+        print("\nМетод парабол в данном случае более точен\n")
         least_error = alg2_error
         worst_alg = average_rectangles
     else:
-        print("Метод средних прямоугольников в данном случае более точен\n")
+        print("\nМетод средних прямоугольников в данном случае более точен\n")
         least_error = alg2_error
         worst_alg = parabolas
+
+    eps = fi.param_input(
+        float,
+        params="n>0",
+        custom_prompt="Введите eps - точность, для которой нужно искать значние n: "
+    )
 
     n = 2
     diff_n = worst_alg(start_x, finish_x, 2, f)
@@ -272,12 +299,6 @@ def main():
     if low_error_flag:
         # !!! Если сравнивать нужно с минимальной погрешностью из этих двух алгоритмов
         # eps = least_error
-
-        # !!! Если нужно просить пользователя вводить эпсилон вручную
-        # eps = fi.param_input(
-        #     float,
-        #     custom_prompt="Введите eps - точность, для которой нужно искать значние n: "
-        # )
 
         accurate_n = calculate_accurate_n(
             worst_alg, n//2, n, start_x, finish_x)

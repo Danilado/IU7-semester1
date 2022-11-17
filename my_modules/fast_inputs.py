@@ -32,7 +32,6 @@ def param_input(data_type: Optional[Union[int, float, str]],
         )
         raise ValueError()
 
-    # try:
     if data_type == str:
         try:
             pattern = re.compile(params)
