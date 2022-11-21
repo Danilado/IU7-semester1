@@ -1,8 +1,9 @@
 """Написанные мной (Даниилом Звягиным ИУ7-13Б)
-можули для быстрого ввода разных типов данных
+модули для быстрого ввода разных типов данных
 с разными проверками
 """
 from typing import Literal, Optional, Union, List
+from random import randint
 import re
 
 
@@ -81,6 +82,62 @@ def param_input(data_type: Optional[Union[int, float, str]],
     return n
 
 
+def input_list(n: int,
+               data_type: Optional[Union[int, float, str]] = float,
+               input_style: Optional[Literal["lab", "normal"]] = 'lab'
+               ) -> List:
+    """Осуществляет ввод списка с длиной n
+
+    :param n: Длина списка
+    :type n: int > 0
+    :param data_type: Тип данных (поддерживается float, int, str), defaults to float
+    :type data_type: Optional[Union[int, float, str]], optional
+    :param input_style: Стиль ввода данных (lab - по одному значению в строке;
+    normal - все элементы, разделённые робелами), defaults to 'lab'
+    :type input_style: Optional[Literal[&quot;lab&quot;, &quot;normal&quot;]], optional
+    :return: Возвращает введённый список с соответствующими параметрами
+    :rtype: List
+    """
+
+    # Проверка размера списка
+    if n < 1 or type(n) is not int:
+        print("Функции ввода списка был передан неправильный размер массива")
+        raise ValueError()
+
+    # Проверка на неправильный тип данных
+    if data_type not in [int, str, float]:
+        print(
+            "Функции ввода списка был предоставлен неправильный тип данных: ",
+            data_type, "\nОжидалось int | float | str."
+        )
+        raise ValueError()
+
+    # Проверка на неправильный стиль ввода
+    if input_style not in ['lab', 'normal']:
+        print(
+            "Функции ввода списка был предоставлен неправильный стиль ввода: ",
+            input_style, "\nОжидалось 'lab' | 'normal'"
+        )
+        raise ValueError()
+
+    arr = [0]*n
+
+    if input_style == 'lab':
+        for i in range(n):
+            arr[i] = param_input(
+                data_type=data_type, custom_prompt=f"Введите {i+1}-й элемент списка: ")
+    else:
+        arr[i] = list(map(data_type, input("Введите список\n> ").split()))
+
+    if len(arr) < n:
+        print("Введено недостаточное количество элементов!")
+        raise ValueError
+    for _ in range(len(arr)-n):
+        arr.pop()
+
+    return arr
+
+
 def input_matrix(m: int, n: Optional[int] = 0,
                  data_type: Optional[Union[int, float, str]] = float,
                  input_style: Optional[Literal["lab", "normal"]] = 'lab') -> List[List]:
@@ -150,57 +207,34 @@ def input_matrix(m: int, n: Optional[int] = 0,
     return matrix
 
 
-def input_list(n: int,
-               data_type: Optional[Union[int, float, str]] = float,
-               input_style: Optional[Literal["lab", "normal"]] = 'lab'
-               ) -> List:
-    """Осуществляет ввод списка с длиной n
+def rand_fill(arr: List, min_value: Optional[int] = -100,
+              max_value: Optional[int] = 100) -> List:
+    """Заполняет список случайными значениями по заданным параметрам
 
-    :param n: Длина списка
-    :type n: int > 0
-    :param data_type: Тип данных (поддерживается float, int, str), defaults to float
-    :type data_type: Optional[Union[int, float, str]], optional
-    :param input_style: Стиль ввода данных (lab - по одному значению в строке;
-    normal - все элементы, разделённые робелами), defaults to 'lab'
-    :type input_style: Optional[Literal[&quot;lab&quot;, &quot;normal&quot;]], optional
-    :return: Возвращает введённый список с соответствующими параметрами
+    :param arr: Список для заполнения
+    :type arr: List
+    :param min_value: Минимальное значение, defaults to -100
+    :type min_value: Optional[int], optional
+    :param max_value: Максимальное значение, defaults to 100
+    :type max_value: Optional[int], optional
+    :return: Список, заполненный случайными числами
     :rtype: List
     """
-
-    # Проверка размера списка
-    if n < 1 or type(n) is not int:
-        print("Функции ввода списка был передан неправильный размер массива")
-        raise ValueError()
-
-    # Проверка на неправильный тип данных
-    if data_type not in [int, str, float]:
-        print(
-            "Функции ввода списка был предоставлен неправильный тип данных: ",
-            data_type, "\nОжидалось int | float | str."
-        )
-        raise ValueError()
-
-    # Проверка на неправильный стиль ввода
-    if input_style not in ['lab', 'normal']:
-        print(
-            "Функции ввода списка был предоставлен неправильный стиль ввода: ",
-            input_style, "\nОжидалось 'lab' | 'normal'"
-        )
-        raise ValueError()
-
-    arr = [0]*n
-
-    if input_style == 'lab':
-        for i in range(n):
-            arr[i] = param_input(
-                data_type=data_type, custom_prompt=f"Введите {i+1}-й элемент списка: ")
-    else:
-        arr[i] = list(map(data_type, input("Введите список\n> ").split()))
-
-    if len(arr) < n:
-        print("Введено недостаточное количество элементов!")
+    if min_value >= max_value:
+        print("Минимальное значение должно быть меньше, либо равно максимальному!")
         raise ValueError
-    for _ in range(len(arr)-n):
-        arr.pop()
+
+    if not isinstance(min_value, int) or not isinstance(max_value, int):
+        print("Минимальное и максимальное значения должны быть целочисленными")
+        raise TypeError
+
+    try:
+        _ = (e for e in arr)
+    except TypeError:
+        print("Переданный в параметр списка объект не итерируемый!")
+        raise TypeError
+
+    for i in range(len(arr)):
+        arr[i] = randint(min_value, max_value)
 
     return arr
