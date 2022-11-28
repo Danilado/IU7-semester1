@@ -7,7 +7,7 @@
 import os
 import re
 import fast_inputs as fi
-from typing import List, Callable, Union
+from typing import List, Callable
 
 
 """Дуглас Адамс - Автостопом по галактике
@@ -34,6 +34,13 @@ def output_text(text: List[str]):
     :param text: Текст для вывода
     :type text: List[str]
     """
+    if not text:
+        print("Ого! Кажется от текста совсем ничего не осталось!")
+        print("Да... Печальное положение, печальное...")
+        print("Чтож, наверное мне стоит выключить программу,")
+        print("пока вы не вызвали ошибку в какой-нибудь функции...")
+        print("Спасибо, что пользовались и хорошего дня!")
+        exit(0)
     for line in text:
         print(line)
     print()
@@ -242,11 +249,71 @@ def do_math(text: List[str]) -> List[str]:
     formatting = detect_align(text)
 
     for i in range(len(text)):
-        while '+' in text[i]:
-            halves = text[i].split('+', 1)
+        cursor_pos = 0
+        # Длина текста может меняться в процессе выполнения, поэтому range не подходит
+        while cursor_pos < len(text[i]):
+            if text[i][cursor_pos] in '+-':
+                left_arg = ''
+                found_flag = False
+                min_k = cursor_pos
+                for k in range(cursor_pos-1, -1, -1):
+                    if text[i][k] == ' ':
+                        # if not found_flag:
+                        #     continue
+                        # else:
+                        break
 
-        while '-' in text[i]:
-            ...
+                    if text[i][k] == '-':
+                        if not left_arg:
+                            break
+                        else:
+                            left_arg = text[i][k] + left_arg
+                            min_k = k
+                            continue
+
+                    if text[i][k] in '0123456789':
+                        found_flag = True
+                        left_arg = text[i][k] + left_arg
+                    else:
+                        break
+
+                    min_k = k
+
+                if not left_arg:
+                    cursor_pos += 1
+                    continue
+
+                max_k = cursor_pos
+                found_flag = False
+                right_arg = ''
+                for k in range(cursor_pos+1, len(text[i])):
+                    if text[i][k] == ' ':
+                        # if not found_flag:
+                        #     continue
+                        # else:
+                        break
+
+                    if text[i][k] in '0123456789':
+                        found_flag = True
+                        right_arg += text[i][k]
+                    else:
+                        break
+
+                    max_k += 1
+
+                if not right_arg:
+                    cursor_pos += 1
+                    continue
+
+                if text[i][cursor_pos] == '+':
+                    result = str(int(left_arg) + int(right_arg))
+                else:
+                    result = str(int(left_arg) - int(right_arg))
+
+                text[i] = text[i][:min_k] + result + text[i][max_k+1:]
+                cursor_pos = min_k
+
+            cursor_pos += 1
 
     text = formatting(text)
 
@@ -265,18 +332,92 @@ def far_longest_word(text: List[str]) -> List[str]:
     :return: Отформатированный текст
     :rtype: List[str]
     """
-    ...
+    # сначала найдём границы предложений
+    formatting = detect_align(text)
+    text = align_left(text)
+
+    sentence_borders = []
+
+    complete_sent_flag = True
+    for i in range(len(text)):
+        for j in range(len(text[i])):
+            if text[i][j] != ' ' and complete_sent_flag:
+                complete_sent_flag = False
+                sentence_borders.append([[i, j], [None, None]])
+            elif text[i][j] in ".!?":
+                sentence_borders[-1][1] = [i, j]
+                complete_sent_flag = True
+
+    sentences = [0]*len(sentence_borders)
+
+    for i, sentence_border in enumerate(sentence_borders):
+        if sentence_border[0][0] == sentence_border[1][0]:
+            sentences[i] = text[sentence_border[0][0]
+                                ][sentence_border[0][1]:sentence_border[1][1]+1]
+        else:
+            sentences[i] = text[sentence_border[0]
+                                [0]][sentence_border[0][1]:] + ' '
+            for k in range(sentence_border[0][0]+1, sentence_border[1][0]):
+                sentences[i] += text[k] + ' '
+            sentences[i] += text[sentence_border[1]
+                                 [0]][:sentence_border[1][1]+1]
+
+    maxlen = 0
+    max_index = 0
+    for i, sentence in enumerate(sentences):
+        for word in sentence.split():
+            if '+' in word:
+                subwords = word.split('+')
+                for subword in subwords:
+                    if len(subword) > maxlen:
+                        maxlen = len(subword)
+                        max_index = i
+                continue
+            if len(word) > maxlen:
+                maxlen = len(word)
+                max_index = i
+
+    if sentence_borders[max_index][0][0] == sentence_borders[max_index][1][0]:
+        text[sentence_borders[max_index][0][0]] =\
+            text[sentence_borders[max_index][0][0]
+                 ][:sentence_borders[max_index][0][1]] +\
+            text[sentence_borders[max_index][0][0]
+                 ][sentence_borders[max_index][1][1]+1:]
+
+    else:
+        text[sentence_borders[max_index][0][0]] =\
+            text[sentence_borders[max_index][0]
+                 [0]][:sentence_borders[max_index][0][1]]
+
+        text[sentence_borders[max_index][1][0]] =\
+            text[sentence_borders[max_index][1]
+                 [0]][sentence_borders[max_index][1][1]+1:]
+
+        for k in range(sentence_borders[max_index][1][0]-1,
+                       sentence_borders[max_index][0][0], -1):
+            text.pop(k)
+
+    for i in range(len(text)-1, -1, -1):
+        if not text[i]:
+            text.pop(i)
+
+    text = formatting(text)
+
+    clear()
+    print(f"> 7")
+    print(sentences[max_index], '\n')
+    return text
 
 
 def main():
     text = [
-        "— Сорок два! — взвизгнул Лунккуоол. — И это всё, что ты можешь сказать после семи с половиной",
-        "миллионов лет работы? — Я всё очень тщательно проверил, — сказал компьютер, — и со всей",
-        "определённостью заявляю, что это и есть ответ. Мне кажется, если уж быть с вами абсолютно",
-        "честным, то всё дело в том, что вы сами не знали, в чём вопрос. — Но это же великий вопрос! Окончательный",
-        "вопрос жизни, Вселенной и всего такого! — почти завыл Лунккуоол. — Да, — сказал компьютер голосом",
-        "страдальца, просвещающего круглого дурака. — И что же это за вопрос?",
-        "s h"
+        "— Сорок два! — взвизгнул Лунккуоол. — И это всё, что ты можешь сказать после",
+        "семи с половиной миллионов лет работы? — Я всё очень тщательно проверил, — сказал",
+        "компьютер, — и со всей определённостью заявляю, что это и есть ответ. Мне кажется,",
+        "если уж быть с вами абсолютно честным, то-всё дело в том, что вы сами не знали,",
+        "в чём вопрос. — Но это+же великий вопрос! Окончательный вопрос жизни, Вселенной",
+        "и всего такого! — почти 40+2 завыл Лунккуоол. — Да, — сказал компьютер голосом",
+        "страдальца, -2+44 просвещающего круглого дурака. — И что 60-18 же это за вопрос?"
     ]
     running = True
     commands = {
