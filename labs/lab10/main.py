@@ -80,7 +80,7 @@ def average_rectangles(start: float, finish: float,
     h = (finish - start)/segment_count  # длина отрезка
     x = start + h/2
 
-    for i in range(segment_count):
+    for _ in range(segment_count):
         result += f(x)
         x += h
 

@@ -61,8 +61,8 @@ def param_input(data_type: Optional[Union[int, float, str]],
 
     n = None
 
-    error_prompt = "Введите число " \
-        + f"(типа {data_type}"
+    error_prompt = "Введите число (типа "
+    error_prompt += "int" if data_type == int else "float"
     error_prompt += f" вида {params}" if special_check_flag else ''
     error_prompt += f"): "
 
