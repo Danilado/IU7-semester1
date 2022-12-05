@@ -6,18 +6,18 @@
 
 Создать ДБ:
     Ввод имени файла
-    Сохранение в текстовом файле базы 
+    Сохранение в текстовом файле базы
       данных в любом удобном мне виде
 
 Считать ДБ:
     Ввод имени файла
-    Вывод на экран содержимого базы 
+    Вывод на экран содержимого базы
       данных
 
 Записать строку в ДБ:
     Ввод имени файла
     Ввод очередной строки
-    Запись строки в конец файла с 
+    Запись строки в конец файла с
       сохранением
 
 Найти по полю в ДБ:
@@ -42,7 +42,7 @@ AMOUNT  - Кол-во полученных подарков
 SA      - Still_Asks Просит ли до сих под подарки у деда мороза
 LGW     - Last_Gift_Weight вес последнего подарка
 
-ID      NAME    S_YEAR  F_YEAR  AGE     AMOUNT  SA      LGW         
+ID      NAME    S_YEAR  F_YEAR  AGE     AMOUNT  SA      LGW
 int     str     int     int     int     int     bool    float
 """
 
@@ -190,7 +190,6 @@ def open_file(filename: str) -> str:
     :return: имя файла, если всё хорошо, иначе - None
     :rtype: str
     """
-
     with open(filename, 'r', encoding="utf-8") as f:
         for i in count(1):
             line = f.readline()
@@ -205,7 +204,6 @@ def open_file(filename: str) -> str:
             if not validate_line(db_line):
                 return None
 
-    print()
     return filename
 
 
@@ -227,6 +225,10 @@ def db_init(filename: str) -> str:
 
         if not continue_flag or continue_flag in "NONononO":
             return None
+
+    # Триггерит PermissionError
+    with open(filename, 'w', encoding='utf-8') as f:
+        ...
 
     fill_flag = fi.param_input(
         str,
@@ -298,7 +300,7 @@ ID      -   ID
 NAME    -   Имя ребёнка
 S_YEAR  -   Год рождения
 F_YEAR  -   Год конца верования
-"AGE    -   Возраст
+AGE     -   Возраст
 AMOUNT  -   Кол-во подарков
 SA      -   Просит до сих пор
 LGW     -   Вес последнего подарка
@@ -353,7 +355,7 @@ def add_line(filename: str) -> None:
         new_line = input_line(last_index+1)
 
         with open(filename, 'a', encoding='utf-8') as f:
-            text_line = ''
+            text_line = '\n'
             for i, el in enumerate(new_line):
                 text_line += str(el)
                 if i != 7:
@@ -367,6 +369,76 @@ def add_line(filename: str) -> None:
         return 1
     except TypeError:
         print("С последней строкой файла что-то не так")
+        return 1
+
+
+def find_by_one_field(filename: str, query: str) -> None:
+    """Ищет и выводит строки базы данных, значение
+    ячейки имени в которых соответствует введённому
+
+    :param filename: Имя файла (с путём)
+    :type filename: str
+    :param query: Срока поиска
+    :type query: str
+    """
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            line = f.readline()
+            if not line:
+                print("Файл пустой!")
+                return 1
+
+            found_something = False
+
+            while line:
+                cells = line.strip().split('|')
+                if cells[1] == query:
+                    print(*cells, sep='\t')
+                    found_something = True
+                line = f.readline()
+
+        if not found_something:
+            print("По вашему запросу ничего не нашлось")
+    except FileNotFoundError:
+        print("С файлом что-то случилось")
+        return 1
+
+
+def find_by_two_fields(filename: str, query1: int, query2: int) -> None:
+    """Ищет и выводит строки базы данных, значения
+    ячеек возраста и кол-ва полученных подарков
+    в которых соответствует введённым значениям
+
+    :param filename: Имя файла (с путём)
+    :type filename: str
+    :param query1: Срока поиска 1
+    :type query1: str
+    :param query2: Срока поиска 2
+    :type query2: str
+    """
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            line = f.readline()
+            if not line:
+                print("Файл пустой!")
+                return 1
+
+            found_something = False
+
+            query1 = str(query1)
+            query2 = str(query2)
+
+            while line:
+                cells = line.strip().split('|')
+                if cells[4] == query1 and cells[5] == query2:
+                    print(*cells, sep='\t')
+                    found_something = True
+                line = f.readline()
+
+        if not found_something:
+            print("По вашему запросу ничего не нашлось")
+    except FileNotFoundError:
+        print("С файлом что-то случилось")
         return 1
 
 
@@ -397,20 +469,44 @@ def main():
         clear()
         print(f"> {command}")
 
-        if command == 0:
-            running = False
-        elif command == 1:
-            file_path = fi.input_filename(1, current_dir)
-            filename = open_file(file_path)
-        elif command == 2:
-            file_path = fi.input_filename(2, current_dir)
-            filename = db_init(file_path)
-        elif command == 3:
-            print_db(filename)
-        elif command == 4:
-            add_line(filename)
-        else:
-            ...
+        try:
+            if command == 0:
+                running = False
+                print("До свидания")
+            elif command == 1:
+                file_path = fi.input_filename(1, current_dir)
+                filename = open_file(file_path)
+            elif command == 2:
+                file_path = fi.input_filename(2, current_dir)
+                filename = db_init(file_path)
+            elif filename:
+                if command == 3:
+                    print_db(filename)
+                elif command == 4:
+                    add_line(filename)
+                elif command == 5:
+                    query = fi.param_input(
+                        str,
+                        '\S{2,12}',
+                        "Введите имя ребёнка для поиска в базе данных: "
+                    )
+                    find_by_one_field(filename, query)
+                else:
+                    query1 = fi.param_input(
+                        int,
+                        '0<n<18',
+                        'Введите возраст ребёнка для поиска: '
+                    )
+                    query2 = fi.param_input(
+                        int,
+                        'n>0',
+                        "Введите кол-во подарков, полученных ребёнком: "
+                    )
+                    find_by_two_fields(filename, query1, query2)
+            else:
+                print("Сначала откройте файл!")
+        except PermissionError:
+            print("Недостаточно прав для доступа к данному файлу или каталогу")
 
 
 if __name__ == "__main__":
