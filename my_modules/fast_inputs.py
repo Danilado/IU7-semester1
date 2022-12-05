@@ -5,6 +5,7 @@
 from typing import Literal, Optional, Union, List
 from random import randint
 import re
+import os.path
 
 
 def param_input(data_type: Optional[Union[int, float, str]],
@@ -152,7 +153,7 @@ def input_matrix(m: int, n: Optional[int] = 0,
     :type data_type: Union[int, float, str], optional
     :param input_style: Стиль ввода (по строкам или по ячейкам), где lab - это
     по ячейкам, а normal - по строкам, defaults to 'lab'
-    :type input_style: Optional[Literal["lab", "normal"]], optional
+    :type input_style: Literal["lab", "normal"], optional
     :return: Возвращает введённую матрицу с соответствующими параметрами
     :rtype: List[List]
     """
@@ -238,3 +239,93 @@ def rand_fill(arr: List, min_value: Optional[int] = -100,
         arr[i] = randint(min_value, max_value)
 
     return arr
+
+
+def relative_to_absolute(path: str) -> str:
+    """Обрабатывает все вхождения вида ../ или ./
+
+    :param path: Путь к файлу
+    :type path: str
+    :return: Преобразованный путь
+    :rtype: str
+    """
+    sep = os.path.sep
+    args = path.split(sep)
+
+    i = 0
+    while i < len(args):
+
+        if args[i] == '.':
+            args.pop(i)
+
+        if args[i] == '..':
+            if i == 0:
+                args.pop(i)
+            else:
+                args.pop(i)
+                i -= 1
+                args.pop(i)
+                i -= 1
+
+        # print(args)
+        i += 1
+
+    path = sep + os.path.join(*args)
+    return path
+
+
+def input_filename(mode: Optional[Literal[0, 1, 2]] = 1, current_path: Optional[str] = '', custom_prompt: Optional[str] = '') -> str:
+    """Осуществляет ввод имени файла с 
+    проверкой файла на существование
+
+    :param mode: Режим работы: 1 - существующий файл, 0 - несуществующий файл, 
+    2 - любой действительный путь к файлу (все папки должны существовать)
+    :mode mode: Literal[1, 2, 3], optional
+    :param custom_promt: Приглашение ко вводу
+    :type custom_promt: str, optional 
+    :param current_path: Путь к папке для относительных путей 
+    :type curent_path: str, optional 
+    :return: Имя файла, если оно было введено успешно
+    :rtype: str
+    """
+    current_dir = '/'
+    if current_path:
+        if os.path.isdir(current_path):
+            current_dir = current_path
+        else:
+            print(current_path)
+            raise ValueError
+
+    filename = None
+    if not custom_prompt:
+        custom_prompt = "Введите имя файла: "
+
+    while True:
+        filename = param_input(str, r"^(.+)\/([^\/]+)$", custom_prompt)
+        if filename[0] == '.':
+            if filename[1] == '.':
+                filename = os.path.join(current_dir, filename)
+            else:
+                filename = filename.replace('.', current_dir, 1)
+
+        filename = relative_to_absolute(filename)
+        # print(current_dir)
+        # print(filename)
+        if mode == 0:
+            if not os.path.exists(filename):
+                break
+            else:
+                print(f"Файл с таким именем и путём уже существует")
+        elif mode == 1:
+            if os.path.exists(filename):
+                break
+            else:
+                print(f"Не найдено файла {filename}")
+        else:
+            if os.path.isdir(os.path.dirname(filename)):
+                break
+            else:
+                print(
+                    "Ошибка в пути к файлу. Вероятнее всего одной из папок не существует.")
+
+    return filename
