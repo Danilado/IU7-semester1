@@ -20,45 +20,53 @@ text1_after_sub=""
 flag=""
 text1=$(cat "$1")
 
-for word in $text1; do
+while read -r line; do
     if [ -z $flag ]; then
-        if echo "$word" | grep -Eq "string:"; then
+        if echo "$line" | grep -Eq "string:"; then
             flag="true"
-            text1_after_sub="$(echo "$word" | grep -Eo "string:.*")"
+            text1_after_sub="$(echo "$line" | grep -Eo "string:.*")"
         fi
     else
-        text1_after_sub="$text1_after_sub $word"
+        text1_after_sub="${text1_after_sub}\n${line}"
     fi
-done
+done <$1
 
 if [ -z $flag ]; then
     if echo "$3" | grep -Eq "^-v$"; then
         echo Ошибка! В первом файле не найдено подстроки \"string:\"
     fi
+    IFS=$old_IFS
     exit 1
 fi
+
+# echo "$text1_after_sub"
 
 text2_after_sub=""
 flag=""
 text2=$(cat "$2")
 
-for word in $text2; do
+while read -r line; do
     if [ -z $flag ]; then
-        if echo "$word" | grep -Eq "string:"; then
+        if echo "$line" | grep -Eq "string:"; then
             flag="true"
-            text2_after_sub="$(echo "$word" | grep -Eo "string:.*")"
+            text2_after_sub="$(echo "$line" | grep -Eo "string:.*")"
         fi
     else
-        text2_after_sub="$text2_after_sub $word"
+        text2_after_sub="${text2_after_sub}\n${line}"
     fi
-done
+done <$2
 
 if [ -z $flag ]; then
     if echo "$3" | grep -Eq "^-v$"; then
         echo Ошибка! Во втором файле не найдено подстроки \"string:\"
     fi
+    IFS=$old_IFS
     exit 1
 fi
+
+# echo "$text2_after_sub"
+
+IFS=$old_IFS
 
 if [ "$text1_after_sub" = "$text2_after_sub" ]; then
     if echo "$3" | grep -Eq "^-v$"; then
@@ -71,5 +79,3 @@ else
     fi
     exit 1
 fi
-
-IFS=$old_IFS
