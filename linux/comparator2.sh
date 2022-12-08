@@ -4,13 +4,13 @@ if [ ! -f $1 ]; then
     if echo "$3" | grep -Eq "^-v$"; then
         echo Ошибка: файл 1 не найден!
     fi
-    exit 1
+    exit 42
 fi
 if [ ! -f $2 ]; then
     if echo "$3" | grep -Eq "^-v$"; then
         echo Ошибка: файл 2 не найден!
     fi
-    exit 1
+    exit 42
 fi
 
 old_IFS=$IFS
@@ -36,7 +36,7 @@ if [ -z $flag ]; then
         echo Ошибка! В первом файле не найдено подстроки \"string:\"
     fi
     IFS=$old_IFS
-    exit 1
+    exit 42
 fi
 
 # echo "$text1_after_sub"
@@ -61,7 +61,7 @@ if [ -z $flag ]; then
         echo Ошибка! Во втором файле не найдено подстроки \"string:\"
     fi
     IFS=$old_IFS
-    exit 1
+    exit 42
 fi
 
 # echo "$text2_after_sub"
