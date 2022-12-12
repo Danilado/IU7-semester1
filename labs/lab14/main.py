@@ -300,10 +300,17 @@ def add_line(filename: str, index: int) -> None:
             while line_count > index-1:
                 prev_chunk = f.read(CHUNK_SIZE)
                 f.write(prev_chunk)
-                f.seek(-CHUNK_SIZE*3, os.SEEK_CUR)
+                if index == 1:
+                    if line_count - index != 0:
+                        f.seek(-CHUNK_SIZE*3, os.SEEK_CUR)
+                    else:
+                        f.seek(0)
+                else:
+                    f.seek(-CHUNK_SIZE*3, os.SEEK_CUR)
                 line_count -= 1
 
-            f.seek(CHUNK_SIZE, os.SEEK_CUR)
+            if index != 1:
+                f.seek(CHUNK_SIZE, os.SEEK_CUR)
             f.write(struct.pack(DB_FORMAT, *new_line))
 
         return 0
@@ -311,8 +318,107 @@ def add_line(filename: str, index: int) -> None:
     except FileNotFoundError:
         print("С файлом что-то случилось")
         return 1
-    except TypeError:
-        print("С последней строкой файла что-то не так")
+
+
+def remove_line(filename: str, index: int) -> None:
+    """Удаляет произвольную строку из БД
+
+    :param filename: имя файла
+    :type filename: str
+    :param index: Индекс удаляемой строки
+    :type index: int
+    """
+    if not filename:
+        print("Сначала введите имя файла!")
+        return 1
+
+    try:
+        with open(filename, "r+b") as f:
+            f.seek(CHUNK_SIZE*index)
+            while True:
+                line = f.read(CHUNK_SIZE)
+                if not line:
+                    break
+                f.seek(-CHUNK_SIZE*2, os.SEEK_CUR)
+                f.write(line)
+                f.seek(CHUNK_SIZE, os.SEEK_CUR)
+
+            f.truncate(os.path.getsize(filename)-CHUNK_SIZE)
+
+        print(f"Строка {index} успешно стёрта")
+    except FileNotFoundError:
+        print("С фалом что-то случилось")
+        return 1
+
+
+def find_by_name(filename: str, query: str) -> None:
+    """Ищет и выводит строки базы данных, значение
+    ячейки имени в которых соответствует введённому
+
+    :param filename: Имя файла (с путём)
+    :type filename: str
+    :param query: Срока поиска
+    :type query: str
+    """
+    try:
+        with open(filename, 'rb') as f:
+            line = f.read(CHUNK_SIZE)
+            if not line:
+                print("Файл пустой!")
+                return 1
+
+            found_something = False
+
+            while line:
+                cells = list(struct.unpack(DB_FORMAT, line))
+
+                if cells[0].decode() == query:
+                    cells[0] = cells[0].decode()
+                    print(*cells, sep='\t')
+
+                    found_something = True
+                line = f.read(CHUNK_SIZE)
+
+        if not found_something:
+            print("По вашему запросу ничего не нашлось")
+    except FileNotFoundError:
+        print("С файлом что-то случилось")
+        return 1
+
+
+def find_by_two_fields(filename: str, query1: int, query2: int) -> None:
+    """Ищет и выводит строки базы данных, значения
+    ячеек возраста и кол-ва полученных подарков
+    в которых соответствует введённым значениям
+
+    :param filename: Имя файла (с путём)
+    :type filename: str
+    :param query1: Срока поиска 1
+    :type query1: str
+    :param query2: Срока поиска 2
+    :type query2: str
+    """
+    try:
+        with open(filename, 'rb') as f:
+            line = f.read(CHUNK_SIZE)
+            if not line:
+                print("Файл пустой!")
+                return 1
+
+            found_something = False
+
+            while line:
+                cells = list(struct.unpack(DB_FORMAT, line))
+                if cells[3] == query1 and cells[4] == query2:
+                    cells[0] = cells[0].decode()
+                    print(*cells, sep='\t')
+                    found_something = True
+                line = f.read(CHUNK_SIZE)
+
+        if not found_something:
+            print("По вашему запросу ничего не нашлось")
+    except FileNotFoundError:
+        print("С файлом что-то случилось")
         return 1
 
 
@@ -335,11 +441,12 @@ def main():
         print("2: Инициализировать базу данных          ")
         print("3: Вывести содержимое базы данных        ")
         print("4: Добавить запись в базу данных         ")
-        print("5: Поиск по одному полю                  ")
-        print("6: Поиск по двум полям                   ")
+        print("5: Удалить строку из БД                  ")
+        print("6: Поиск по одному полю                  ")
+        print("7: Поиск по двум полям                   ")
         print("0: Выход                                 ")
 
-        command = fi.param_input(int, "0<=n<=6", '\nВведите номер команды: ')
+        command = fi.param_input(int, "0<=n<=7", '\nВведите номер команды: ')
         clear()
         print(f"> {command}")
 
@@ -365,26 +472,32 @@ def main():
                     )
                     add_line(filename, index)
                 elif command == 5:
-                    ...
-                    # query = fi.param_input(
-                    #     str,
-                    #     '\S{2,12}',
-                    #     "Введите имя ребёнка для поиска в базе данных: "
-                    # )
-                    # find_by_one_field(filename, query)
+                    max_id = os.path.getsize(filename)//CHUNK_SIZE
+                    index = fi.param_input(
+                        int,
+                        f"1<=n<={max_id}",
+                        "Введите номер записи для удаления: "
+                    )
+                    remove_line(filename, index)
+                elif command == 6:
+                    query = fi.param_input(
+                        str,
+                        '\S{2,12}',
+                        "Введите имя ребёнка для поиска в базе данных: "
+                    )
+                    find_by_name(filename, query)
                 else:
-                    ...
-                    # query1 = fi.param_input(
-                    #     int,
-                    #     '0<n<18',
-                    #     'Введите возраст ребёнка для поиска: '
-                    # )
-                    # query2 = fi.param_input(
-                    #     int,
-                    #     'n>0',
-                    #     "Введите кол-во подарков, полученных ребёнком: "
-                    # )
-                    # find_by_two_fields(filename, query1, query2)
+                    query1 = fi.param_input(
+                        int,
+                        '0<n<18',
+                        'Введите возраст ребёнка для поиска: '
+                    )
+                    query2 = fi.param_input(
+                        int,
+                        'n>0',
+                        "Введите кол-во подарков, полученных ребёнком: "
+                    )
+                    find_by_two_fields(filename, query1, query2)
             else:
                 print("Сначала откройте файл!")
         except PermissionError:
