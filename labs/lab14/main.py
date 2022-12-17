@@ -367,12 +367,16 @@ def find_by_name(filename: str, query: str) -> None:
                 print("Файл пустой!")
                 return 1
 
+            print("ID\tNAME\t\tS_YEAR\tF_YEAR\tAGE\tAMOUNT\tSA\tLGW", end='\r')
+
             found_something = False
 
             while line:
                 cells = list(struct.unpack(DB_FORMAT, line))
 
                 if cells[0].decode() == query:
+                    if not found_something:
+                        print()
                     cells[0] = cells[0].decode()
                     print(*cells, sep='\t')
 
@@ -380,7 +384,7 @@ def find_by_name(filename: str, query: str) -> None:
                 line = f.read(CHUNK_SIZE)
 
         if not found_something:
-            print("По вашему запросу ничего не нашлось")
+            print("По вашему запросу ничего не нашлось" + ' '*50)
     except FileNotFoundError:
         print("С файлом что-то случилось")
         return 1
@@ -405,18 +409,22 @@ def find_by_two_fields(filename: str, query1: int, query2: int) -> None:
                 print("Файл пустой!")
                 return 1
 
+            print("ID\tNAME\t\tS_YEAR\tF_YEAR\tAGE\tAMOUNT\tSA\tLGW", end='\r')
+
             found_something = False
 
             while line:
                 cells = list(struct.unpack(DB_FORMAT, line))
                 if cells[3] == query1 and cells[4] == query2:
+                    if not found_something:
+                        print()
                     cells[0] = cells[0].decode()
                     print(*cells, sep='\t')
                     found_something = True
                 line = f.read(CHUNK_SIZE)
 
         if not found_something:
-            print("По вашему запросу ничего не нашлось")
+            print("По вашему запросу ничего не нашлось" + ' '*50)
     except FileNotFoundError:
         print("С файлом что-то случилось")
         return 1
@@ -455,8 +463,21 @@ def main():
                 running = False
                 print("До свидания")
             elif command == 1:
-                file_path = fi.input_filename(1, current_dir)
-                filename = open_file(file_path)
+                file_path = fi.input_filename(2, current_dir)
+                if not os.path.exists(file_path):
+                    print("Файл по такому пути не найден.")
+                    create_flag = fi.param_input(
+                        str,
+                        r'([Yy]([Ee][Ss])?)|([Nn][Oo]?)|.{0}',
+                        "Хотите создать файл по этому пути? [Y/n]: "
+                    )
+
+                    if not create_flag or re.fullmatch(create_flag, r'[Yy]([Ee][Ss])?'):
+                        filename = db_init(file_path)
+                    else:
+                        continue
+                else:
+                    filename = open_file(file_path)
             elif command == 2:
                 file_path = fi.input_filename(2, current_dir)
                 filename = db_init(file_path)

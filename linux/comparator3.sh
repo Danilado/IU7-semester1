@@ -12,6 +12,18 @@ if [ ! -f $2 ]; then
     fi
     exit 42
 fi
+if [ -r $1 ]; then
+    if echo "$3" | grep -Eq "^-v$"; then
+        echo Ошибка: недостаточно прав для доступа к файлу 1!
+    fi
+    exit 42
+fi
+if [ -r $2 ]; then
+    if echo "$3" | grep -Eq "^-v$"; then
+        echo Ошибка: недостаточно прав для доступа к файлу 2!
+    fi
+    exit 42
+fi
 
 old_IFS=$IFS
 IFS=" "

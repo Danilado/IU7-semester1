@@ -41,8 +41,11 @@ def param_input(data_type: Optional[Union[int, float, str]],
             print("Ошибка в регулярном выражении для ввода строки")
             raise ValueError
 
-        error_prompt = "Введите строку" + \
-            f" (паттерна вида {params})" if params != '.*' else ''
+        if params == r"^((.+)\/)?([^\/]+)$":
+            error_prompt = "Введите действительное имя файла"
+        else:
+            error_prompt = "Введите строку" +\
+                f" (паттерна вида {params})" if params != '.*' else ''
         error_prompt += ': '
 
         prompt = custom_prompt if custom_prompt else error_prompt
@@ -301,8 +304,10 @@ def input_filename(mode: Optional[Literal[0, 1, 2]] = 1, current_path: Optional[
         custom_prompt = "Введите имя файла: "
 
     while True:
-        filename = param_input(str, r"^(.+)\/([^\/]+)$", custom_prompt)
-        if filename[0] == '.':
+        filename = param_input(str, r"^((.+)\/)?([^\/]+)$", custom_prompt)
+        if filename[0] not in "./" or filename[:2] != "./":
+            filename = "./"+filename
+        if filename[0] == '.' and filename[1] == '/':
             if filename[1] == '.':
                 filename = os.path.join(current_dir, filename)
             else:

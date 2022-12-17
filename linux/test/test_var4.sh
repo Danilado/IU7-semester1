@@ -109,6 +109,36 @@ echo Нажмите Enter, чтобы продолжить
 read
 
 clear
+echo Тест 8 - разные формы записи чисел в одном файле
+echo Файл 1:
+cat "./test/var4/text6.txt"
+echo
+echo Файл 2:
+cat "./test/var4/text6.txt"
+echo
+
+bash ./comparator4.sh "./test/var4/text6.txt" "./test/var4/text6.txt" -v
+echo Код выхода: "$?"
+echo
+echo Нажмите Enter, чтобы продолжить
+read
+
+clear
+echo Тест 9 - проверка на корректность работы
+echo Файл 1:
+cat "./test/var4/text5.txt"
+echo
+echo Файл 2:
+cat "./test/var4/text6.txt"
+echo
+
+bash ./comparator4.sh "./test/var4/text5.txt" "./test/var4/text6.txt" -v
+echo Код выхода: "$?"
+echo
+echo Нажмите Enter, чтобы продолжить
+read
+
+clear
 echo Тестирование варианта 4 завершено.
 echo Нажмите Enter, чтобы продолжить
 read
