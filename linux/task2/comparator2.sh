@@ -1,59 +1,56 @@
 #!/bin/bash
 
 if [ \( -z "$1" \) -o \( -z "$2" \) ]; then
-    echo Ошибка: Введите имена двух файлов в качестве первого и второго аргумента! >&2
-    exit 42
+  echo Ошибка: Введите имена двух файлов в качестве первого и второго аргумента! >&2
+  exit 42
 fi
 if [ ! -f $1 ]; then
-    if [[ "$3" == "-v" ]]; then
-        echo Ошибка: файл 1 не найден!
-    fi
-    exit 42
+  if [[ "$3" == "-v" ]]; then
+    echo Ошибка: файл 1 не найден!
+  fi
+  exit 42
 fi
 if [ ! -f $2 ]; then
-    if [[ "$3" == "-v" ]]; then
-        echo Ошибка: файл 2 не найден!
-    fi
-    exit 42
+  if [[ "$3" == "-v" ]]; then
+    echo Ошибка: файл 2 не найден!
+  fi
+  exit 42
 fi
 if [ ! -r $1 ]; then
-    if [[ "$3" == "-v" ]]; then
-        echo Ошибка: недостаточно прав для доступа к файлу 1!
-    fi
-    exit 42
+  if [[ "$3" == "-v" ]]; then
+    echo Ошибка: недостаточно прав для доступа к файлу 1!
+  fi
+  exit 42
 fi
 if [ ! -r $2 ]; then
-    if [[ "$3" == "-v" ]]; then
-        echo Ошибка: недостаточно прав для доступа к файлу 2!
-    fi
-    exit 42
+  if [[ "$3" == "-v" ]]; then
+    echo Ошибка: недостаточно прав для доступа к файлу 2!
+  fi
+  exit 42
 fi
-
-old_IFS=$IFS
-IFS=""
 
 flag=""
 
 tmp1=$(mktemp)
 FIN=false
 until $FIN; do
-    read -r line || FIN=true
-    if [ -z $flag ]; then
-        if [[ "$line" == *"string:"* ]]; then
-            flag="true"
-            echo "$line" | grep -Eo "string:.*" >"$tmp1"
-        fi
-    else
-        echo "$line" >>"$tmp1"
+  read -r line || FIN=true
+  if [ -z $flag ]; then
+    if [[ "$line" == *"string:"* ]]; then
+      flag="true"
+      echo "$line" | grep -Eo "string:.*" >"$tmp1"
     fi
+  else
+    echo "$line" >>"$tmp1"
+  fi
 done <"$1"
 
 if [ -z $flag ]; then
-    if [[ "$3" == "-v" ]]; then
-        echo Ошибка! В первом файле не найдено подстроки \"string:\"
-    fi
-    IFS=$old_IFS
-    exit 42
+  if [[ "$3" == "-v" ]]; then
+    echo Ошибка! В первом файле не найдено подстроки \"string:\"
+  fi
+  
+  exit 42
 fi
 
 flag=""
@@ -61,34 +58,34 @@ flag=""
 tmp2=$(mktemp)
 FIN=false
 until $FIN; do
-    read -r line || FIN=true
-    if [ -z $flag ]; then
-        if [[ "$line" == *"string:"* ]]; then
-            flag="true"
-            echo "$line" | grep -Eo "string:.*" >"$tmp2"
-        fi
-    else
-        echo "$line" >>"$tmp2"
+  read -r line || FIN=true
+  if [ -z $flag ]; then
+    if [[ "$line" == *"string:"* ]]; then
+      flag="true"
+      echo "$line" | grep -Eo "string:.*" >"$tmp2"
     fi
+  else
+    echo "$line" >>"$tmp2"
+  fi
 done <"$2"
 
 if [ -z $flag ]; then
-    if [[ "$3" == "-v" ]]; then
-        echo Ошибка! Во втором файле не найдено подстроки \"string:\"
-    fi
-    IFS=$old_IFS
-    exit 42
+  if [[ "$3" == "-v" ]]; then
+    echo Ошибка! Во втором файле не найдено подстроки \"string:\"
+  fi
+  
+  exit 42
 fi
 
-IFS=$old_IFS
+
 if cmp -s $tmp1 $tmp2; then
-    if [[ "$3" == "-v" ]]; then
-        echo Файлы одинаковые
-    fi
-    exit 0
+  if [[ "$3" == "-v" ]]; then
+    echo Файлы одинаковые
+  fi
+  exit 0
 else
-    if [[ "$3" == "-v" ]]; then
-        echo Файлы разные
-    fi
-    exit 1
+  if [[ "$3" == "-v" ]]; then
+    echo Файлы разные
+  fi
+  exit 1
 fi
